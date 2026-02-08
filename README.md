@@ -158,19 +158,64 @@ This module can control any MagicMirror module that responds to `SHOW_MODULE` an
 
 ## Troubleshooting
 
+### "unable to find handler" in logs
+
+This is just a warning that can be safely ignored. The module includes a `node_helper.js` file to suppress this warning. If you still see it, make sure you pulled the latest version:
+
+```bash
+cd ~/MagicMirror/modules/MMM-CalendarInteraction
+git pull
+pm2 restart MagicMirror
+```
+
+### No logs appearing at all
+
+If you see "unable to find handler" but NO OTHER logs from MMM-CalendarInteraction:
+
+1. **Check module is in correct location:**
+   ```bash
+   ls -la ~/MagicMirror/modules/MMM-CalendarInteraction/
+   ```
+   Should show: `MMM-CalendarInteraction.js`, `node_helper.js`, `MMM-CalendarInteraction.css`
+
+2. **Check config syntax:**
+   ```bash
+   node ~/MagicMirror/config/config.js
+   ```
+   If there's a syntax error, it will show here.
+
+3. **Check browser console** (F12) for JavaScript errors
+
+4. **View PM2 logs:**
+   ```bash
+   pm2 logs MagicMirror --lines 100
+   ```
+
 ### Calendar doesn't hide on startup
 
 1. Make sure `initiallyHidden` is set to `true`
-2. Enable debug mode: `debug: true`
-3. Check the console for error messages
-4. Verify the `targetModule` name matches your calendar module exactly
+2. Check PM2 logs to see if hide attempt is logged:
+   ```bash
+   pm2 logs MagicMirror | grep "HIDING"
+   ```
+3. Verify the `targetModule` name matches your calendar module exactly
+4. Check if module found the calendar:
+   ```bash
+   pm2 logs MagicMirror | grep "Found.*module"
+   ```
 
 ### Calendar doesn't show on interaction
 
-1. Enable debug mode to see if interactions are detected
-2. Check browser console for JavaScript errors
-3. Ensure your calendar module supports hide/show notifications
-4. Try clicking directly on the screen or pressing a key
+1. Check if interactions are being detected:
+   ```bash
+   pm2 logs MagicMirror | grep "interaction detected"
+   ```
+2. Check browser console (F12) for JavaScript errors
+3. Try clicking directly on the screen or pressing a key
+4. Check if modules were found:
+   ```bash
+   pm2 logs MagicMirror | grep "SHOWING"
+   ```
 
 ### Debug Mode
 
