@@ -80,6 +80,7 @@ Add the module to your `config/config.js` file. It should be placed **before** t
 | `hideTimeout` | Number | `300000` | Time in milliseconds before auto-hiding (5 minutes = 300000ms) |
 | `initiallyHidden` | Boolean | `true` | Whether to hide the calendar on startup |
 | `debug` | Boolean | `false` | Enable debug logging to the console |
+| `useForce` | Boolean | `true` | Use force option to override lockStrings (recommended: true) |
 
 ## Complete Config Example
 
@@ -155,6 +156,28 @@ This module can control any MagicMirror module that responds to `SHOW_MODULE` an
 - ✅ MMM-CalendarExt3
 - ✅ calendar (default MagicMirror calendar)
 - ✅ Any standard MagicMirror module
+
+## Understanding Force Mode
+
+MagicMirror modules can use "lockStrings" to prevent other modules from hiding/showing them. This can cause issues where hide/show commands are ignored.
+
+**The `useForce: true` option (default) solves this** by forcing the hide/show action, overriding any lockStrings.
+
+### When to use force mode:
+
+- ✅ **Recommended**: Keep `useForce: true` (default)
+- ✅ If calendar won't hide on startup
+- ✅ If calendar won't show on interaction
+- ❌ Only set to `false` if you have conflicts with other control modules
+
+### Testing without force:
+
+If you want to test without force mode, set:
+```javascript
+useForce: false
+```
+
+Then use the browser console commands in `TESTING.md` to diagnose lockString issues.
 
 ## Troubleshooting
 

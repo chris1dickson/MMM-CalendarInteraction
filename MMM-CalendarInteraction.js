@@ -11,7 +11,8 @@ Module.register("MMM-CalendarInteraction", {
 		targetModule: "MMM-CalendarExt2", // Module to hide/show
 		hideTimeout: 300000, // 5 minutes in milliseconds (5 * 60 * 1000)
 		initiallyHidden: true, // Hide calendar on startup
-		debug: false // Enable debug logging
+		debug: false, // Enable debug logging
+		useForce: true // Use force option to override lockStrings (recommended)
 	},
 
 	// Define required scripts
@@ -138,56 +139,116 @@ Module.register("MMM-CalendarInteraction", {
 	// Show the calendar
 	showCalendar: function () {
 		Log.info("MMM-CalendarInteraction: 👁️ SHOWING calendar");
-		Log.info("MMM-CalendarInteraction: Sending SHOW_MODULE notification for:", this.config.targetModule);
+		Log.info("MMM-CalendarInteraction: Target module:", this.config.targetModule);
 
 		// Try multiple methods to show the module
 
-		// Method 1: Standard MagicMirror notification
-		this.sendNotification("SHOW_MODULE", {
+		// Method 1: Show via notification (with force if enabled)
+		const notifOptions = {
 			module: this.config.targetModule
-		});
+		};
+		if (this.config.useForce) {
+			notifOptions.force = true;
+			Log.info("MMM-CalendarInteraction: Sending SHOW_MODULE with force=true");
+		} else {
+			Log.info("MMM-CalendarInteraction: Sending SHOW_MODULE (no force)");
+		}
+		this.sendNotification("SHOW_MODULE", notifOptions);
 
-		// Method 2: Direct DOM manipulation as fallback
+		// Method 2: Direct module.show() call
 		setTimeout(() => {
-			const modules = document.querySelectorAll('.module.' + this.config.targetModule);
-			Log.info("MMM-CalendarInteraction: Found", modules.length, "module(s) with class", this.config.targetModule);
+			const allModules = MM.getModules();
+			let found = 0;
+			const self = this;
 
-			modules.forEach((module, index) => {
-				Log.info("MMM-CalendarInteraction: Showing module", index, "by removing hidden class");
-				module.classList.remove('hidden');
-				module.style.display = '';
+			allModules.forEach((module) => {
+				if (module.name === self.config.targetModule) {
+					found++;
+					if (self.config.useForce) {
+						Log.info("MMM-CalendarInteraction: Calling show(1000, {force: true}) on module", found);
+						module.show(1000, {force: true});
+					} else {
+						Log.info("MMM-CalendarInteraction: Calling show(1000) on module", found);
+						module.show(1000);
+					}
+				}
 			});
+
+			Log.info("MMM-CalendarInteraction: Found and showed", found, "module instance(s)");
+
+			// Method 3: Direct DOM manipulation as final fallback
+			if (found === 0) {
+				Log.warn("MMM-CalendarInteraction: No modules found via MM.getModules(), trying DOM...");
+				const domModules = document.querySelectorAll('.module.' + this.config.targetModule);
+				Log.info("MMM-CalendarInteraction: Found", domModules.length, "module(s) in DOM");
+
+				domModules.forEach((domModule, index) => {
+					Log.info("MMM-CalendarInteraction: Showing DOM module", index);
+					domModule.classList.remove('hidden');
+					domModule.style.display = '';
+				});
+			}
 		}, 100);
 
 		this.isCalendarVisible = true;
-		Log.info("MMM-CalendarInteraction: Calendar visibility state set to: visible");
+		Log.info("MMM-CalendarInteraction: ✓ Calendar visibility state set to: visible");
 	},
 
 	// Hide the calendar
 	hideCalendar: function () {
 		Log.info("MMM-CalendarInteraction: 🙈 HIDING calendar");
-		Log.info("MMM-CalendarInteraction: Sending HIDE_MODULE notification for:", this.config.targetModule);
+		Log.info("MMM-CalendarInteraction: Target module:", this.config.targetModule);
 
 		// Try multiple methods to hide the module
 
-		// Method 1: Standard MagicMirror notification
-		this.sendNotification("HIDE_MODULE", {
+		// Method 1: Hide via notification (with force if enabled)
+		const notifOptions = {
 			module: this.config.targetModule
-		});
+		};
+		if (this.config.useForce) {
+			notifOptions.force = true;
+			Log.info("MMM-CalendarInteraction: Sending HIDE_MODULE with force=true");
+		} else {
+			Log.info("MMM-CalendarInteraction: Sending HIDE_MODULE (no force)");
+		}
+		this.sendNotification("HIDE_MODULE", notifOptions);
 
-		// Method 2: Direct DOM manipulation as fallback
+		// Method 2: Direct module.hide() call
 		setTimeout(() => {
-			const modules = document.querySelectorAll('.module.' + this.config.targetModule);
-			Log.info("MMM-CalendarInteraction: Found", modules.length, "module(s) with class", this.config.targetModule);
+			const allModules = MM.getModules();
+			let found = 0;
+			const self = this;
 
-			modules.forEach((module, index) => {
-				Log.info("MMM-CalendarInteraction: Hiding module", index, "by adding hidden class");
-				module.classList.add('hidden');
+			allModules.forEach((module) => {
+				if (module.name === self.config.targetModule) {
+					found++;
+					if (self.config.useForce) {
+						Log.info("MMM-CalendarInteraction: Calling hide(1000, {force: true}) on module", found);
+						module.hide(1000, {force: true});
+					} else {
+						Log.info("MMM-CalendarInteraction: Calling hide(1000) on module", found);
+						module.hide(1000);
+					}
+				}
 			});
+
+			Log.info("MMM-CalendarInteraction: Found and hid", found, "module instance(s)");
+
+			// Method 3: Direct DOM manipulation as final fallback
+			if (found === 0) {
+				Log.warn("MMM-CalendarInteraction: No modules found via MM.getModules(), trying DOM...");
+				const domModules = document.querySelectorAll('.module.' + this.config.targetModule);
+				Log.info("MMM-CalendarInteraction: Found", domModules.length, "module(s) in DOM");
+
+				domModules.forEach((domModule, index) => {
+					Log.info("MMM-CalendarInteraction: Hiding DOM module", index);
+					domModule.classList.add('hidden');
+				});
+			}
 		}, 100);
 
 		this.isCalendarVisible = false;
-		Log.info("MMM-CalendarInteraction: Calendar visibility state set to: hidden");
+		Log.info("MMM-CalendarInteraction: ✓ Calendar visibility state set to: hidden");
 	},
 
 	// Reset the auto-hide timer
