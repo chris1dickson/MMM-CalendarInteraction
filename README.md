@@ -13,22 +13,33 @@ A MagicMirror² module that hides your calendar on startup and shows it on any u
 
 ## Installation
 
+### On Raspberry Pi
+
 1. Navigate to your MagicMirror's modules folder:
    ```bash
    cd ~/MagicMirror/modules
    ```
 
-2. Clone this repository or copy the module folder:
+2. Clone this repository:
    ```bash
-   git clone https://github.com/yourusername/MMM-CalendarInteraction.git
+   git clone https://github.com/chris1dickson/MMM-CalendarInteraction.git
    ```
 
-   Or if you have the module locally:
+3. Navigate back to the MagicMirror directory:
    ```bash
-   cp -r /path/to/MMM-CalendarInteraction ~/MagicMirror/modules/
+   cd ~/MagicMirror
    ```
 
-3. Add the module to your `config/config.js` file (see configuration below)
+4. Add the module to your `config/config.js` file (see configuration below)
+
+5. Restart MagicMirror:
+   ```bash
+   pm2 restart MagicMirror
+   ```
+   Or if running manually:
+   ```bash
+   npm start
+   ```
 
 ## Configuration
 
