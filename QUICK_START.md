@@ -77,6 +77,20 @@ MMM-CalendarInteraction: ⏰ Timer expired!
 MMM-CalendarInteraction: 🙈 HIDING calendar
 ```
 
+## Known Issue: Calendar "Flashes" and Reappears
+
+If the calendar briefly hides then immediately reappears, this is because **MMM-CalendarExt2 re-renders itself** and overrides the hide command.
+
+**This version includes a fix**: Uses CSS `!important` rules on the `<body>` tag that survive re-renders.
+
+The module now uses **5 methods** to hide the calendar:
+1. CSS class on body (`calendar-interaction-hidden`) with `!important` - **Survives re-renders!**
+2. Force notification (`HIDE_MODULE` with `force: true`)
+3. Direct module.hide() call
+4. Direct DOM manipulation on module wrapper
+5. Direct DOM manipulation on `.CX2` elements (CalendarExt2-specific)
+6. Re-apply hiding after 1 second to catch late re-renders
+
 ## Troubleshooting
 
 ### Only seeing "unable to find handler"

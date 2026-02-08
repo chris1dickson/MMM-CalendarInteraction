@@ -141,7 +141,9 @@ Module.register("MMM-CalendarInteraction", {
 		Log.info("MMM-CalendarInteraction: 👁️ SHOWING calendar");
 		Log.info("MMM-CalendarInteraction: Target module:", this.config.targetModule);
 
-		// Try multiple methods to show the module
+		// Method 0: Remove CSS class from body (most persistent method)
+		Log.info("MMM-CalendarInteraction: Removing calendar-interaction-hidden class from body");
+		document.body.classList.remove('calendar-interaction-hidden');
 
 		// Method 1: Show via notification (with force if enabled)
 		const notifOptions = {
@@ -176,18 +178,26 @@ Module.register("MMM-CalendarInteraction", {
 
 			Log.info("MMM-CalendarInteraction: Found and showed", found, "module instance(s)");
 
-			// Method 3: Direct DOM manipulation as final fallback
-			if (found === 0) {
-				Log.warn("MMM-CalendarInteraction: No modules found via MM.getModules(), trying DOM...");
-				const domModules = document.querySelectorAll('.module.' + this.config.targetModule);
-				Log.info("MMM-CalendarInteraction: Found", domModules.length, "module(s) in DOM");
+			// Method 3: Direct DOM manipulation (module wrapper)
+			const domModules = document.querySelectorAll('.module.' + self.config.targetModule);
+			Log.info("MMM-CalendarInteraction: Found", domModules.length, "module wrapper(s) in DOM");
 
-				domModules.forEach((domModule, index) => {
-					Log.info("MMM-CalendarInteraction: Showing DOM module", index);
-					domModule.classList.remove('hidden');
-					domModule.style.display = '';
-				});
-			}
+			domModules.forEach((domModule, index) => {
+				Log.info("MMM-CalendarInteraction: Showing module wrapper", index);
+				domModule.classList.remove('hidden');
+				domModule.style.display = '';
+			});
+
+			// Method 4: Show CalendarExt2 specific elements (.CX2)
+			const cx2Elements = document.querySelectorAll('.CX2');
+			Log.info("MMM-CalendarInteraction: Found", cx2Elements.length, ".CX2 element(s) in DOM");
+
+			cx2Elements.forEach((cx2Element, index) => {
+				Log.info("MMM-CalendarInteraction: Showing .CX2 element", index);
+				cx2Element.classList.remove('hidden');
+				cx2Element.style.display = '';
+				cx2Element.style.visibility = '';
+			});
 		}, 100);
 
 		this.isCalendarVisible = true;
@@ -199,7 +209,9 @@ Module.register("MMM-CalendarInteraction", {
 		Log.info("MMM-CalendarInteraction: 🙈 HIDING calendar");
 		Log.info("MMM-CalendarInteraction: Target module:", this.config.targetModule);
 
-		// Try multiple methods to hide the module
+		// Method 0: Add CSS class to body (most persistent method - survives re-renders)
+		Log.info("MMM-CalendarInteraction: Adding calendar-interaction-hidden class to body");
+		document.body.classList.add('calendar-interaction-hidden');
 
 		// Method 1: Hide via notification (with force if enabled)
 		const notifOptions = {
@@ -234,18 +246,47 @@ Module.register("MMM-CalendarInteraction", {
 
 			Log.info("MMM-CalendarInteraction: Found and hid", found, "module instance(s)");
 
-			// Method 3: Direct DOM manipulation as final fallback
-			if (found === 0) {
-				Log.warn("MMM-CalendarInteraction: No modules found via MM.getModules(), trying DOM...");
-				const domModules = document.querySelectorAll('.module.' + this.config.targetModule);
-				Log.info("MMM-CalendarInteraction: Found", domModules.length, "module(s) in DOM");
+			// Method 3: Direct DOM manipulation (module wrapper)
+			const domModules = document.querySelectorAll('.module.' + self.config.targetModule);
+			Log.info("MMM-CalendarInteraction: Found", domModules.length, "module wrapper(s) in DOM");
 
-				domModules.forEach((domModule, index) => {
-					Log.info("MMM-CalendarInteraction: Hiding DOM module", index);
+			domModules.forEach((domModule, index) => {
+				Log.info("MMM-CalendarInteraction: Hiding module wrapper", index);
+				domModule.classList.add('hidden');
+				domModule.style.display = 'none';
+			});
+
+			// Method 4: Hide CalendarExt2 specific elements (.CX2)
+			const cx2Elements = document.querySelectorAll('.CX2');
+			Log.info("MMM-CalendarInteraction: Found", cx2Elements.length, ".CX2 element(s) in DOM");
+
+			cx2Elements.forEach((cx2Element, index) => {
+				Log.info("MMM-CalendarInteraction: Hiding .CX2 element", index);
+				cx2Element.classList.add('hidden');
+				cx2Element.style.display = 'none';
+				cx2Element.style.visibility = 'hidden';
+			});
+		}, 100);
+
+		// Repeat DOM hiding after a delay to catch any re-rendering
+		setTimeout(() => {
+			if (!this.isCalendarVisible) {
+				Log.info("MMM-CalendarInteraction: Re-applying hide after 1 second (catching re-renders)");
+
+				const cx2Elements = document.querySelectorAll('.CX2');
+				cx2Elements.forEach((cx2Element) => {
+					cx2Element.classList.add('hidden');
+					cx2Element.style.display = 'none';
+					cx2Element.style.visibility = 'hidden';
+				});
+
+				const domModules = document.querySelectorAll('.module.' + this.config.targetModule);
+				domModules.forEach((domModule) => {
 					domModule.classList.add('hidden');
+					domModule.style.display = 'none';
 				});
 			}
-		}, 100);
+		}, 1000);
 
 		this.isCalendarVisible = false;
 		Log.info("MMM-CalendarInteraction: ✓ Calendar visibility state set to: hidden");

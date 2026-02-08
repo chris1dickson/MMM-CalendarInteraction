@@ -4,3 +4,17 @@
 	/* This module doesn't display anything visible */
 	display: none;
 }
+
+/* Hide calendar when interaction module sets this class on body */
+body.calendar-interaction-hidden .CX2,
+body.calendar-interaction-hidden .module.MMM-CalendarExt2 {
+	display: none !important;
+	visibility: hidden !important;
+}
+
+/* Ensure calendar is visible when class is removed */
+body:not(.calendar-interaction-hidden) .CX2,
+body:not(.calendar-interaction-hidden) .module.MMM-CalendarExt2 {
+	display: block;
+	visibility: visible;
+}
