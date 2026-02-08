@@ -1,0 +1,6 @@
+/* MMM-CalendarInteraction styles */
+
+.calendar-interaction-wrapper {
+	/* This module doesn't display anything visible */
+	display: none;
+}
